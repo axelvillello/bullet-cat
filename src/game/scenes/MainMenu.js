@@ -16,15 +16,13 @@ export class MainMenu extends Scene
 
         this.add.image(512, 384, 'background');
 
-        this.add.image(512, 100, 'logo');
-
-        this.add.text(512, 180, 'Main Menu', {
-            fontFamily: 'Arial Black', fontSize: 64, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
+        this.add.text(512, 100, 'Bullet Cat', {
+            fontFamily: 'Arial Black', fontSize: 72, color: '#000000',
+            stroke: '#ffffff', strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5);
 
-        this.startButton = this.add.text(512, 460, 'Start Game', { 
+        this.startButton = this.add.text(512, 360, 'Start Game', { 
                 fill: '#000000',
                 backgroundColor: '#0f0',
                 align: 'center',
@@ -38,7 +36,7 @@ export class MainMenu extends Scene
             .on('pointerover', () => this.startButtonOver())
             .on('pointerout', () => this.startButtonOut());
         
-        this.creditsButton = this.add.text(512, 660, 'Credits', { 
+        this.creditsButton = this.add.text(512, 560, 'Credits', { 
                 fill: '#000000',
                 backgroundColor: '#FBCEB1',
                 align: 'center',

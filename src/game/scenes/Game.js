@@ -4,7 +4,6 @@ import { Bullet } from '../gameObjects/Bullet';
 
 export class Game extends Scene
 {
-
     constructor ()
     {
         super('Game');
@@ -12,14 +11,19 @@ export class Game extends Scene
 
     create ()
     {
-        this.cameras.main.setBackgroundColor(808080);
+        this.cameras.main.setBackgroundColor('#884496');
         this.camera = this.cameras.main;
-        this.add.image(512, 384, 'background').setAlpha(0.5);
+
+        //this.walls = this.physics.add.staticGroup();
+
+        this.platform = this.add.circle(512, 384, 1000, '#ffffff', 0.5);
 
         this.lights.enable();
         this.lights.addLight({x: 512, y: 384, z: 50, intensity: 100, radius: 500});
 
         this.player = new Player({ scene: this }).setScale(3);
+
+        //this.physics.add.collider(this.player, this.platformBounds);
 
         this.keyA = this.input.keyboard.addKey('A');
         this.keyS = this.input.keyboard.addKey('S');
@@ -40,16 +44,11 @@ export class Game extends Scene
         this.fireRate = 200;
         this.lastFired = 0;
 
-        this.dodgeRate = 300;
+        this.dodgeRate = 400;
         this.lastDodged = 0;
 
         this.scene.launch('HUD');
-
-        this.anims.create({
-            key: 'fire',
-            frames: this.anims.generateFrameNumbers('p_bullet1', { frames: [ 0, 1, 2, 3, 4, 5, 6, 7 ] }),
-            frameRate: 8
-        });
+        
     
     }
 

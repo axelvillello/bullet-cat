@@ -94,7 +94,14 @@ export class Player extends Physics.Arcade.Sprite {
 
     dodge() {
         this.createAfterImage();
-        this.scene.physics.moveTo(this, this.scene.pointer.worldX, this.scene.pointer.worldY, 3000, 0);
+        let dodgeVelX = 0;
+        let dodgeVelY = 0;
+        if (this.body.velocity != 0) dodgeVelX = 3000 * Math.sign(this.body.velocity.x);
+        if (this.body.velocity != 0) dodgeVelY = 3000 * Math.sign(this.body.velocity.y);
+        this.setVelocity(dodgeVelX, dodgeVelY);
+
+        // Dodging in cursor direction
+        //this.scene.physics.moveTo(this, this.scene.pointer.worldX, this.scene.pointer.worldY, 3000, 0);
     }
 
     createAfterImage() {

@@ -6,7 +6,7 @@ export class Bullet extends Physics.Arcade.Sprite {
 
     constructor({scene}) {
 
-        super(scene, 512, 384, 'p_bullet1');
+        super(scene, 0, 0, 'p_bullet1');
         this.scene = scene;
         this.scene.add.existing(this);
         this.scene.physics.add.existing(this);
