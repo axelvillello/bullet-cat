@@ -34,6 +34,7 @@ export class Preloader extends Scene
         this.load.image('logo', 'logo.png');
         this.load.spritesheet('cat', 'black_2.png', {frameWidth: 31.95, frameHeight: 32});
         this.load.spritesheet('p_bullet1', 'player_bullet_1.png', {frameWidth: 23.8, frameHeight: 17});
+        this.load.spritesheet('apathy', 'Apathy.png', {frameWidth: 128, frameHeight: 128});
     }
 
     create ()

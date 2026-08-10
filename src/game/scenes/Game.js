@@ -1,6 +1,6 @@
-import { Scene, Cameras } from 'phaser';
+import { Scene } from 'phaser';
 import { Player } from '../gameObjects/Player';
-import { Bullet } from '../gameObjects/Bullet';
+import { Apathy } from '../gameObjects/Apathy';
 
 export class Game extends Scene
 {
@@ -16,12 +16,13 @@ export class Game extends Scene
 
         //this.walls = this.physics.add.staticGroup();
 
-        this.platform = this.add.circle(512, 384, 1000, '#ffffff', 0.5);
+        this.platform = this.add.circle(512, 384, 700, '#ffffff', 0.5);
 
         this.lights.enable();
         this.lights.addLight({x: 512, y: 384, z: 50, intensity: 100, radius: 500});
 
         this.player = new Player({ scene: this }).setScale(3);
+        this.enemy = new Apathy({ scene: this });
 
         //this.physics.add.collider(this.player, this.platformBounds);
 
@@ -35,28 +36,22 @@ export class Game extends Scene
         this.pointer = this.input.activePointer;
 
         this.player.start();
+        this.enemy.start();
+
         this.camera.startFollow(this.player);
 
         this.isFiring = false;
         this.input.on('pointerdown', () => { this.isFiring = true; });
         this.input.on('pointerup',   () => { this.isFiring = false; });
 
-        this.fireRate = 200;
-        this.lastFired = 0;
-
-        this.dodgeRate = 400;
-        this.lastDodged = 0;
-
         this.scene.launch('HUD');
-        
-    
     }
 
     update(time) {
-
         this.pointer.updateWorldPoint(this.camera);
 
         this.player.update();
+        this.enemy.update();
 
         if (this.keyW.isDown) {
             this.player.move('up');
@@ -83,17 +78,9 @@ export class Game extends Scene
             this.scene.start('GameOver');
         }
 
-        if (this.keySPACE.isDown && time - this.lastDodged > this.dodgeRate) {
-            this.player.dodge();
-            this.time.delayedCall(100, () => { this.lastDodged = time }, [], this);
-        }
+        if (this.keySPACE.isDown) this.player.dodge();
 
-        if (this.isFiring && time - this.lastFired > this.fireRate) 
-        {
-            const bullet = new Bullet({ scene: this }).setScale(4);
-            bullet.start();
-            this.lastFired = time;
-        }
+        if (this.isFiring) this.player.fire();
 
     }
 }

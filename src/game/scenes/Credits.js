@@ -21,6 +21,12 @@ export class Credits extends Scene
             align: 'center'
         }).setOrigin(0.5);
 
+        this.add.text(512, 200, 'Heart Sprite Original: Kjpargeter https://www.magnific.com/author/kjpargeter', {
+            fontFamily: 'Arial Black', fontSize: 20, color: '#ffffff',
+            stroke: '#000000', strokeThickness: 8,
+            align: 'center'
+        }).setOrigin(0.5);
+
         this.input.once('pointerdown', () => {
 
             this.scene.start('MainMenu');

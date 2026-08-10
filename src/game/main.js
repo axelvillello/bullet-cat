@@ -5,7 +5,7 @@ import { MainMenu } from './scenes/MainMenu.js';
 import { Preloader } from './scenes/Preloader.js';
 import { Credits } from './scenes/Credits.js';
 import { HUD } from './scenes/HUD.js';
-import { AUTO, Game, Physics, Scale } from 'phaser';
+import { AUTO, Game, Scale } from 'phaser';
 
 //  Find out more information about the Game Config at:
 //  https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
@@ -21,7 +21,7 @@ const config = {
         autoCenter: Scale.CENTER_BOTH
     },
     physics: {
-        default: "arcade"
+        default: 'arcade'
     },
     scene: [
         Boot,
