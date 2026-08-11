@@ -21,7 +21,8 @@ const config = {
         autoCenter: Scale.CENTER_BOTH
     },
     physics: {
-        default: 'arcade'
+        default: 'arcade',
+        //arcade: { debug: true}
     },
     scene: [
         Boot,

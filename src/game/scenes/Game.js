@@ -1,6 +1,7 @@
 import { Scene } from 'phaser';
 import { Player } from '../gameObjects/Player';
 import { Apathy } from '../gameObjects/Apathy';
+import eventCenter from '../helpers/EventCenter';
 
 export class Game extends Scene
 {
@@ -11,6 +12,7 @@ export class Game extends Scene
 
     create ()
     {
+        this.scene.launch('HUD');
         this.cameras.main.setBackgroundColor('#884496');
         this.camera = this.cameras.main;
 
@@ -23,6 +25,10 @@ export class Game extends Scene
 
         this.player = new Player({ scene: this }).setScale(3);
         this.enemy = new Apathy({ scene: this });
+
+        this.scene.get('HUD').events.once('create', () => {
+            eventCenter.emit('update-player-hp', this.player.hp);
+        });
 
         //this.physics.add.collider(this.player, this.platformBounds);
 
@@ -44,7 +50,6 @@ export class Game extends Scene
         this.input.on('pointerdown', () => { this.isFiring = true; });
         this.input.on('pointerup',   () => { this.isFiring = false; });
 
-        this.scene.launch('HUD');
     }
 
     update(time) {

@@ -1,9 +1,13 @@
 import { Physics } from 'phaser';
 import { Bullet } from './Bullet';
+import eventCenter from '../helpers/EventCenter';
+import { knockback } from '../behaviours/Generic';
 
 export class Player extends Physics.Arcade.Sprite {
 
     state = 'standby';
+    hitstun = false;
+    hp = 3;
     fireRate = 500;
     lastFired = 0;
     dodgeRate = 400;
@@ -17,6 +21,7 @@ export class Player extends Physics.Arcade.Sprite {
         this.scene.physics.add.existing(this);
         this.createAnimations();
 
+        this.body.setSize(10, 10);
         //this.setLighting(true);
         //this.setSelfShadow(true);
     }
@@ -113,7 +118,9 @@ export class Player extends Physics.Arcade.Sprite {
                 targetX: this.scene.pointer.worldX,
                 targetY: this.scene.pointer.worldY,
                 speed: 1000,
-                duration: 1000
+                duration: 1000,
+                tint: '0x7df9ff',
+                source: 'player'
             })
             .setScale(4);
             
@@ -123,7 +130,7 @@ export class Player extends Physics.Arcade.Sprite {
     }
 
     dodge() {
-        if (this.scene.time.now - this.lastDodged > this.dodgeRate) 
+        if ((this.scene.time.now - this.lastDodged > this.dodgeRate) && !this.hitstun) 
         {
             this.state = 'dodging';
             this.createAfterImage();
@@ -153,5 +160,17 @@ export class Player extends Physics.Arcade.Sprite {
             ease: 'Cubic.easeOut',
             onComplete: () => ghost.destroy()
         });
+    }
+
+    takeDamage(source) {
+        if (!this.hitstun && this.state != 'dodging')
+        {    
+            this.hitstun = true;
+            --this.hp;
+            eventCenter.emit('update-player-hp', this.hp);
+            knockback(this, source);
+
+            this.scene.time.delayedCall(200, () => { this.hitstun = false; this.state = 'can_move' }, [], this);
+        }    
     }
 }

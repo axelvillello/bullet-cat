@@ -14,6 +14,9 @@ export class Apathy extends Physics.Arcade.Sprite {
         this.scene.add.existing(this);
         this.scene.physics.add.existing(this);
         this.createAnimations();
+
+        this.body.setSize(60, 80);
+        this.scene.physics.add.overlap(this, this.scene.player, this.scene.player.takeDamage, null, this.scene.player); 
     }
 
     createAnimations() {
@@ -45,7 +48,8 @@ export class Apathy extends Physics.Arcade.Sprite {
                 targetY: this.scene.player.y,
                 speed: 300,
                 duration: 4000,
-                tint: '0xff2400'
+                tint: '0xff2400',
+                source: 'enemy'
             })
             .setScale(4);
                     

@@ -4,7 +4,7 @@ export class Bullet extends Physics.Arcade.Sprite {
 
     state = 'standby';
 
-    constructor({scene, originX, originY, targetX, targetY, speed, duration, tint = '0xffffff'}) {
+    constructor({scene, originX, originY, targetX, targetY, speed, duration, tint = '0xffffff', source}) {
 
         super(scene, 0, 0, 'p_bullet1');
         this.scene = scene;
@@ -19,6 +19,11 @@ export class Bullet extends Physics.Arcade.Sprite {
         this.scene.add.existing(this);
         this.scene.physics.add.existing(this);
         this.createAnimations();
+
+        this.body.setSize(10, 10);
+        if (source == 'enemy') this.scene.physics.add.overlap(this, this.scene.player, (bulletObj, playerObj) => {
+            playerObj.takeDamage(bulletObj);
+        }, null, this.scene.player);        
     }
 
     createAnimations() {
@@ -26,7 +31,7 @@ export class Bullet extends Physics.Arcade.Sprite {
             this.scene.anims.create({
                 key: 'fire',
                 frames: this.anims.generateFrameNumbers('p_bullet1', { frames: [ 0, 1, 2, 3, 4, 5, 6, 7 ] }),
-                frameRate: 8,
+                frameRate: 15,
                 repeat: -1
             });
         }
