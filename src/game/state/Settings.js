@@ -1,4 +1,5 @@
 class Settings {
+    
     font = 'Papyrus';
 }
 

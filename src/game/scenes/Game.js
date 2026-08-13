@@ -1,6 +1,7 @@
 import { Scene } from 'phaser';
 import { Player } from '../gameObjects/Player';
 import { Apathy } from '../gameObjects/Apathy';
+import { Subiugatum } from '../gameObjects/Subiugatum';
 import eventCenter from '../helpers/EventCenter';
 
 export class Game extends Scene
@@ -16,21 +17,21 @@ export class Game extends Scene
         this.cameras.main.setBackgroundColor('#884496');
         this.camera = this.cameras.main;
 
-        //this.walls = this.physics.add.staticGroup();
-
         this.platform = this.add.circle(512, 384, 700, '#ffffff', 0.5);
 
-        this.lights.enable();
-        this.lights.addLight({x: 512, y: 384, z: 50, intensity: 100, radius: 500});
+        //this.lights.enable();
+        //this.lights.addLight({x: 512, y: 384, z: 50, intensity: 100, radius: 500});
 
         this.player = new Player({ scene: this }).setScale(3);
-        this.enemy = new Apathy({ scene: this });
+
+        this.apathy = new Apathy ({ scene: this });
+        this.subiugatum = new Subiugatum({ scene: this });
+        this.enemies = this.add.group();
+        this.enemies.addMultiple([this.apathy, this.subiugatum]);
 
         this.scene.get('HUD').events.once('create', () => {
             eventCenter.emit('update-player-hp', this.player.hp);
         });
-
-        //this.physics.add.collider(this.player, this.platformBounds);
 
         this.keyA = this.input.keyboard.addKey('A');
         this.keyS = this.input.keyboard.addKey('S');
@@ -42,7 +43,11 @@ export class Game extends Scene
         this.pointer = this.input.activePointer;
 
         this.player.start();
-        this.enemy.start();
+
+        for (let e of this.enemies.getChildren())
+        {
+            e.start();
+        }
 
         this.camera.startFollow(this.player);
 
@@ -56,7 +61,11 @@ export class Game extends Scene
         this.pointer.updateWorldPoint(this.camera);
 
         this.player.update();
-        this.enemy.update();
+
+        for (let e of this.enemies.getChildren())
+        {
+            e.update();
+        }
 
         if (this.keyW.isDown) {
             this.player.move('up');

@@ -1,15 +1,14 @@
 import { Physics } from 'phaser';
-import { Bullet } from './Bullet';
+import { knockback } from '../behaviours/Generic';
 
 export class Apathy extends Physics.Arcade.Sprite {
-
     state = 'standby';
+    hp = 3;
     fireRate = 2000;
     lastFired = 0;
 
     constructor({scene}) {
-
-        super(scene, 512, -200, 'apathy');
+        super(scene, 412, -200, 'apathy');
         this.scene = scene;
         this.scene.add.existing(this);
         this.scene.physics.add.existing(this);
@@ -36,25 +35,12 @@ export class Apathy extends Physics.Arcade.Sprite {
     }
 
     update() {
-        if (this.state == 'can_move') this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, 100, 0);
+        if (this.state == 'can_move') this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, 150, 0);
+    }
 
-        if (this.scene.time.now - this.lastFired > this.fireRate) 
-        {
-            const bullet = new Bullet({ 
-                scene: this.scene, 
-                originX: this.x, 
-                originY: this.y,
-                targetX: this.scene.player.x,
-                targetY: this.scene.player.y,
-                speed: 300,
-                duration: 4000,
-                tint: '0xff2400',
-                source: 'enemy'
-            })
-            .setScale(4);
-                    
-            bullet.start();
-            this.lastFired = this.scene.time.now;
-         }
+    takeDamage(source) {
+        --this.hp;
+        knockback(this, source);
+        this.scene.time.delayedCall(200, () => { this.state = 'can_move' }, [], this);
     }
 }

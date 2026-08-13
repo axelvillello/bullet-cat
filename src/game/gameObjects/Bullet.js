@@ -1,11 +1,9 @@
 import { Physics } from 'phaser';
 
 export class Bullet extends Physics.Arcade.Sprite {
-
     state = 'standby';
 
-    constructor({scene, originX, originY, targetX, targetY, speed, duration, tint = '0xffffff', source}) {
-
+    constructor({scene, originX, originY, targetX, targetY, speed, duration, offset = 0, tint = '0xffffff', source}) {
         super(scene, 0, 0, 'p_bullet1');
         this.scene = scene;
         this.startX = originX;
@@ -14,6 +12,7 @@ export class Bullet extends Physics.Arcade.Sprite {
         this.targetY = targetY;
         this.speed = speed;
         this.duration = duration;
+        this.offset = offset;
         this.setTint(tint);
         
         this.scene.add.existing(this);
@@ -23,7 +22,12 @@ export class Bullet extends Physics.Arcade.Sprite {
         this.body.setSize(10, 10);
         if (source == 'enemy') this.scene.physics.add.overlap(this, this.scene.player, (bulletObj, playerObj) => {
             playerObj.takeDamage(bulletObj);
-        }, null, this.scene.player);        
+        }, null, this.scene.player)
+        else {
+            this.scene.physics.add.overlap(this, this.scene.enemies.getChildren(), (bulletObj, enemyObj) => {
+            enemyObj.takeDamage(bulletObj);
+        }, null, this.scene.enemies.getChildren())
+        };        
     }
 
     createAnimations() {
@@ -40,7 +44,7 @@ export class Bullet extends Physics.Arcade.Sprite {
     start ()
     {
         this.anims.play('fire', true);
-        this.setPosition(this.startX, this.startY);
+        this.setPosition(this.startX, this.startY + this.offset);
         this.scene.physics.moveTo(this, this.targetX, this.targetY, this.speed, 0);
         this.scene.time.delayedCall(this.duration, () => { this.destroy() }, [], this);
     }

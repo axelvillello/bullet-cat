@@ -4,7 +4,6 @@ import eventCenter from '../helpers/EventCenter';
 import { knockback } from '../behaviours/Generic';
 
 export class Player extends Physics.Arcade.Sprite {
-
     state = 'standby';
     hitstun = false;
     hp = 3;
@@ -141,6 +140,7 @@ export class Player extends Physics.Arcade.Sprite {
             this.setVelocity(dodgeVelX, dodgeVelY);
 
             this.scene.time.delayedCall(100, () => { this.lastDodged = this.scene.time.now; this.state = 'can_move' }, [], this);
+            
             // Dodging in cursor direction
             //this.scene.physics.moveTo(this, this.scene.pointer.worldX, this.scene.pointer.worldY, 3000, 0);
         }
