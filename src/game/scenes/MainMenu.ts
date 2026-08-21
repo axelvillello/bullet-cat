@@ -4,8 +4,9 @@ import Settings from '../state/Settings';
 
 export class MainMenu extends Scene
 {
-    startButton = null;
-    creditsButton = null;
+    startButton!: Phaser.GameObjects.Container;
+    optionsButton!: Phaser.GameObjects.Container;
+    creditsButton!: Phaser.GameObjects.Container;
 
     constructor ()
     {

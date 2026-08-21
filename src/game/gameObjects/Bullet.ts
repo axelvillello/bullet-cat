@@ -1,11 +1,37 @@
 import { Physics } from 'phaser';
+import { Game } from '../scenes/Game';
+import { Player } from './Player';
+import { Apathy } from './Apathy';
+import { Subiugatum } from './Subiugatum';
+
+interface BulletConfig {
+    scene: Game;
+    originX: number;
+    originY: number;
+    targetX: number;
+    targetY: number;
+    speed: number;
+    duration: number;
+    source: string;
+    offset?: number;
+    tint?: number;
+}
 
 export class Bullet extends Physics.Arcade.Sprite {
+    declare scene: Game;
+    declare body: Phaser.Physics.Arcade.Body;
+    startX!: number;
+    startY!: number;
+    targetX!: number;
+    targetY!: number;
+    speed!: number;
+    duration!: number;
+    offset!: number;
     state = 'standby';
 
-    constructor({scene, originX, originY, targetX, targetY, speed, duration, offset = 0, tint = '0xffffff', source}) {
+    constructor({scene, originX, originY, targetX, targetY, speed, duration, source, offset = 0, tint = 0xffffff} : BulletConfig)
+    {
         super(scene, 0, 0, 'p_bullet1');
-        this.scene = scene;
         this.startX = originX;
         this.startY = originY;
         this.targetX = targetX;
@@ -21,12 +47,12 @@ export class Bullet extends Physics.Arcade.Sprite {
 
         this.body.setSize(10, 10);
         if (source == 'enemy') this.scene.physics.add.overlap(this, this.scene.player, (bulletObj, playerObj) => {
-            playerObj.takeDamage(bulletObj);
-        }, null, this.scene.player)
+            (playerObj as Player).takeDamage(bulletObj as Bullet)
+        }, undefined, this)
         else {
             this.scene.physics.add.overlap(this, this.scene.enemies.getChildren(), (bulletObj, enemyObj) => {
-            enemyObj.takeDamage(bulletObj);
-        }, null, this.scene.enemies.getChildren())
+            (enemyObj as Apathy | Subiugatum).takeDamage(bulletObj as Bullet);
+        }, undefined, this)
         };        
     }
 

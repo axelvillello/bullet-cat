@@ -26,6 +26,8 @@
   },
   "dependencies": {
     "express": "^5.2.1",
-    "phaser": "4.0.0"
+    "phaser": "4.0.0",
+    "source-map-loader": "^5.0.0",
+    "ts-loader": "^9.6.2"
   }
 }

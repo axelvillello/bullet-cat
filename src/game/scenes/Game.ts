@@ -4,8 +4,25 @@ import { Apathy } from '../gameObjects/Apathy';
 import { Subiugatum } from '../gameObjects/Subiugatum';
 import eventCenter from '../helpers/EventCenter';
 
+type Keys = Phaser.Input.Keyboard.Key;
+
 export class Game extends Scene
 {
+    platform!: Phaser.GameObjects.Arc;
+    player!: Player;
+    apathy!: Apathy;
+    subiugatum!: Subiugatum;
+    enemies!: Phaser.GameObjects.Group;
+    enemyList!: (Apathy | Subiugatum)[]; //Separate array for handling enemy logic to avoid looping through the heavier group object
+    keyW!: Keys;
+    keyA!: Keys;
+    keyS!: Keys;
+    keyD!: Keys;
+    keySPACE!: Keys;
+    keyESC!: Keys;
+
+    isFiring = false;
+
     constructor ()
     {
         super('Game');
@@ -15,9 +32,8 @@ export class Game extends Scene
     {
         this.scene.launch('HUD');
         this.cameras.main.setBackgroundColor('#884496');
-        this.camera = this.cameras.main;
 
-        this.platform = this.add.circle(512, 384, 700, '#ffffff', 0.5);
+        this.platform = this.add.circle(512, 384, 700, 0xffffff, 0.5);
 
         //this.lights.enable();
         //this.lights.addLight({x: 512, y: 384, z: 50, intensity: 100, radius: 500});
@@ -28,41 +44,38 @@ export class Game extends Scene
         this.subiugatum = new Subiugatum({ scene: this });
         this.enemies = this.add.group();
         this.enemies.addMultiple([this.apathy, this.subiugatum]);
+        this.enemyList = [this.apathy, this.subiugatum];
 
         this.scene.get('HUD').events.once('create', () => {
             eventCenter.emit('update-player-hp', this.player.hp);
         });
 
-        this.keyA = this.input.keyboard.addKey('A');
-        this.keyS = this.input.keyboard.addKey('S');
-        this.keyD = this.input.keyboard.addKey('D');
-        this.keyW = this.input.keyboard.addKey('W');
-        this.keyESC = this.input.keyboard.addKey('ESC');
-        this.keySPACE = this.input.keyboard.addKey('SPACE');
-
-        this.pointer = this.input.activePointer;
+        this.keyW = this.input.keyboard!.addKey('W');
+        this.keyA = this.input.keyboard!.addKey('A');
+        this.keyS = this.input.keyboard!.addKey('S');
+        this.keyD = this.input.keyboard!.addKey('D');
+        this.keySPACE = this.input.keyboard!.addKey('SPACE');
+        this.keyESC = this.input.keyboard!.addKey('ESC');
 
         this.player.start();
 
-        for (let e of this.enemies.getChildren())
+        for (let e of this.enemyList)
         {
             e.start();
         }
 
-        this.camera.startFollow(this.player);
-
-        this.isFiring = false;
+        this.cameras.main.startFollow(this.player);
         this.input.on('pointerdown', () => { this.isFiring = true; });
         this.input.on('pointerup',   () => { this.isFiring = false; });
 
     }
 
-    update(time) {
-        this.pointer.updateWorldPoint(this.camera);
+    update() {
+        this.input.activePointer.updateWorldPoint(this.cameras.main);
 
         this.player.update();
 
-        for (let e of this.enemies.getChildren())
+        for (let e of this.enemyList)
         {
             e.update();
         }

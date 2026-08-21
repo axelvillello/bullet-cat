@@ -4,6 +4,8 @@ import Settings from "../state/Settings";
 
 export class HUD extends Scene 
 {
+    playerHPLabel!: Phaser.GameObjects.Text;
+
     constructor () 
     {
         super('HUD');
@@ -26,7 +28,7 @@ export class HUD extends Scene
         }).setOrigin(0, 1);
     }
 
-    updatePlayerHP(updatedHP) {
+    updatePlayerHP(updatedHP: number) {
         this.playerHPLabel.text = `Life: ${updatedHP}`;
     }
 }

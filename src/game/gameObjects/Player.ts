@@ -2,8 +2,11 @@ import { Physics } from 'phaser';
 import { Bullet } from './Bullet';
 import eventCenter from '../helpers/EventCenter';
 import { knockback } from '../behaviours/Generic';
+import { Game } from '../scenes/Game';
 
 export class Player extends Physics.Arcade.Sprite {
+    declare scene: Game;
+    declare body: Phaser.Physics.Arcade.Body;
     state = 'standby';
     hitstun = false;
     hp = 3;
@@ -12,10 +15,8 @@ export class Player extends Physics.Arcade.Sprite {
     dodgeRate = 400;
     lastDodged = 0;
 
-    constructor({scene}) {
-
+    constructor({scene}: { scene: Game}) {
         super(scene, 512, 384, 'cat');
-        this.scene = scene;
         this.scene.add.existing(this);
         this.scene.physics.add.existing(this);
         this.createAnimations();
@@ -74,7 +75,7 @@ export class Player extends Physics.Arcade.Sprite {
         }
     }
 
-    move(direction) {
+    move(direction: string) {
         if (this.state === 'can_move') {
             switch (direction) {
                 case ('up'):  
@@ -114,11 +115,11 @@ export class Player extends Physics.Arcade.Sprite {
                 scene: this.scene, 
                 originX: this.x, 
                 originY: this.y,
-                targetX: this.scene.pointer.worldX,
-                targetY: this.scene.pointer.worldY,
+                targetX: this.scene.input.activePointer.worldX,
+                targetY: this.scene.input.activePointer.worldY,
                 speed: 1000,
                 duration: 1000,
-                tint: '0x7df9ff',
+                tint: 0x7df9ff,
                 source: 'player'
             })
             .setScale(4);
@@ -133,16 +134,15 @@ export class Player extends Physics.Arcade.Sprite {
         {
             this.state = 'dodging';
             this.createAfterImage();
-            let dodgeVelX = 0;
-            let dodgeVelY = 0;
-            if (this.body.velocity != 0) dodgeVelX = 3000 * Math.sign(this.body.velocity.x);
-            if (this.body.velocity != 0) dodgeVelY = 3000 * Math.sign(this.body.velocity.y);
+
+            const dodgeVelX = this.body.velocity.x !== 0 ? 3000 * Math.sign(this.body.velocity.x) : 0;
+            const dodgeVelY = this.body.velocity.y !== 0 ? 3000 * Math.sign(this.body.velocity.y) : 0;
             this.setVelocity(dodgeVelX, dodgeVelY);
 
             this.scene.time.delayedCall(100, () => { this.lastDodged = this.scene.time.now; this.state = 'can_move' }, [], this);
             
             // Dodging in cursor direction
-            //this.scene.physics.moveTo(this, this.scene.pointer.worldX, this.scene.pointer.worldY, 3000, 0);
+            //this.scene.physics.moveTo(this, this.scene.input.activePointer.worldX, this.scene.input.activePointer.worldY, 3000, 0);
         }
     }
 
@@ -162,7 +162,7 @@ export class Player extends Physics.Arcade.Sprite {
         });
     }
 
-    takeDamage(source) {
+    takeDamage(source: Phaser.GameObjects.GameObject) {
         if (!this.hitstun && this.state != 'dodging')
         {    
             this.hitstun = true;

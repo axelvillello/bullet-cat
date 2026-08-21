@@ -1,4 +1,4 @@
-function createButton(scene, x, y, color, label, font, onClick) {
+function createButton(scene: Phaser.Scene, x: number, y: number, color: number, label: string, font: string, onClick: any) {
     const width = 220;
     const height = 60;
     const radius = 16;
@@ -10,7 +10,7 @@ function createButton(scene, x, y, color, label, font, onClick) {
     bg.strokeRoundedRect(-width / 2, -height / 2, width, height, radius);
 
     const text = scene.add.text(0, 0, label, {
-        fill: '#ffffff',
+        color: '#ffffff',
         align: 'center',
         fontFamily: font,
         fontSize: '24px',

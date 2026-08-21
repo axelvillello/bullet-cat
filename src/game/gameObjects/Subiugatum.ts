@@ -1,22 +1,27 @@
 import { Physics } from 'phaser';
 import { Bullet } from './Bullet';
 import { knockback } from '../behaviours/Generic';
+import { Game } from '../scenes/Game';
+import { Player } from './Player';
 
 export class Subiugatum extends Physics.Arcade.Sprite {
+    declare scene: Game;
+    declare body: Phaser.Physics.Arcade.Body;
     state = 'standby';
     hp = 3;
     fireRate = 2000;
     lastFired = 0;
 
-    constructor({scene}) {
+    constructor({scene}: { scene: Game}) {
         super(scene, 512, -200, 'subiugatum');
-        this.scene = scene;
         this.scene.add.existing(this);
         this.scene.physics.add.existing(this);
         this.createAnimations();
 
         this.body.setSize(60, 80);
-        this.scene.physics.add.overlap(this, this.scene.player, this.scene.player.takeDamage, null, this.scene.player); 
+        this.scene.physics.add.overlap(this, this.scene.player, (subiugatumObj, playerObj) => {
+            (playerObj as Player).takeDamage(subiugatumObj as Subiugatum);},
+         undefined, this); 
     }
 
     createAnimations() {
@@ -49,7 +54,7 @@ export class Subiugatum extends Physics.Arcade.Sprite {
                 speed: 300,
                 duration: 4000,
                 offset: -50,
-                tint: '0xff2400',
+                tint: 0xff2400,
                 source: 'enemy'
             })
             .setScale(4);
@@ -59,7 +64,7 @@ export class Subiugatum extends Physics.Arcade.Sprite {
          }
     }
 
-    takeDamage(source) {
+    takeDamage(source: Phaser.GameObjects.GameObject) {
         --this.hp;
         knockback(this, source);
         this.scene.time.delayedCall(200, () => { this.state = 'can_move' }, [], this);
