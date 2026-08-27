@@ -1,10 +1,11 @@
 import { Physics } from 'phaser';
 import { Bullet } from './Bullet';
 import eventCenter from '../helpers/EventCenter';
-import { knockback } from '../behaviours/Generic';
+import { knockback, death } from '../behaviours/Generic';
 import { Game } from '../scenes/Game';
 
-export class Player extends Physics.Arcade.Sprite {
+export class Player extends Physics.Arcade.Sprite 
+{
     declare scene: Game;
     declare body: Phaser.Physics.Arcade.Body;
     state = 'standby';
@@ -15,7 +16,8 @@ export class Player extends Physics.Arcade.Sprite {
     dodgeRate = 400;
     lastDodged = 0;
 
-    constructor({scene}: { scene: Game}) {
+    constructor({scene}: { scene: Game}) 
+    {
         super(scene, 512, 384, 'cat');
         this.scene.add.existing(this);
         this.scene.physics.add.existing(this);
@@ -26,17 +28,22 @@ export class Player extends Physics.Arcade.Sprite {
         //this.setSelfShadow(true);
     }
 
-    createAnimations() {
-        if (!this.scene.anims.exists('idle')) {
-            this.scene.anims.create({
+    createAnimations() 
+    {
+        if (!this.scene.anims.exists('idle')) 
+        {
+            this.scene.anims.create(
+            {
                 key: 'idle',
                 frames: this.anims.generateFrameNumbers('cat', { frames: [ 0, 1, 2, 3, 24, 25, 26, 25, 24, 3, 2, 1 ] }),
                 frameRate: 5
             });
         }
 
-        if (!this.scene.anims.exists('side')) {
-            this.scene.anims.create({
+        if (!this.scene.anims.exists('side')) 
+        {
+            this.scene.anims.create(
+            {
                 key: 'side',
                 frames: this.anims.generateFrameNumbers('cat', { frames: [ 64, 65, 66, 67, 88] }),
                 frameRate: 5,
@@ -44,8 +51,10 @@ export class Player extends Physics.Arcade.Sprite {
             });
         }
 
-        if (!this.scene.anims.exists('up')) {
-            this.scene.anims.create({
+        if (!this.scene.anims.exists('up')) 
+        {
+            this.scene.anims.create(
+            {
                 key: 'up',
                 frames: this.anims.generateFrameNumbers('cat', { frames: [ 208, 209, 210, 211, 232] }),
                 frameRate: 5,
@@ -53,8 +62,10 @@ export class Player extends Physics.Arcade.Sprite {
             });
         }
 
-        if (!this.scene.anims.exists('down')) {
-            this.scene.anims.create({
+        if (!this.scene.anims.exists('down')) 
+        {
+            this.scene.anims.create(
+            {
                 key: 'down',
                 frames: this.anims.generateFrameNumbers('cat', { frames: [ 16, 17, 18, 19, 40] }),
                 frameRate: 5,
@@ -63,21 +74,26 @@ export class Player extends Physics.Arcade.Sprite {
         }
     }
 
-    start() {
+    start() 
+    {
         this.state = 'can_move';
         this.anims.play('idle', true);
     }
 
-    update() {
+    update() 
+    {
         if (this.body.velocity.x === 0 && this.body.velocity.y === 0)
         {
             this.anims.play('idle', true);
         }
     }
 
-    move(direction: string) {
-        if (this.state === 'can_move') {
-            switch (direction) {
+    move(direction: string) 
+    {
+        if (this.state === 'can_move') 
+        {
+            switch (direction) 
+            {
                 case ('up'):  
                     this.setVelocityY(-300);
                     if (this.body.velocity.x == 0) this.anims.play('up', true);
@@ -108,10 +124,12 @@ export class Player extends Physics.Arcade.Sprite {
         }
     }
 
-    fire() {
+    fire() 
+    {
         if (this.scene.time.now - this.lastFired > this.fireRate) 
         {
-            const bullet = new Bullet({ 
+            const bullet = new Bullet(
+            { 
                 scene: this.scene, 
                 originX: this.x, 
                 originY: this.y,
@@ -129,7 +147,8 @@ export class Player extends Physics.Arcade.Sprite {
         }
     }
 
-    dodge() {
+    dodge() 
+    {
         if ((this.scene.time.now - this.lastDodged > this.dodgeRate) && !this.hitstun) 
         {
             this.state = 'dodging';
@@ -146,14 +165,16 @@ export class Player extends Physics.Arcade.Sprite {
         }
     }
 
-    createAfterImage() {
+    createAfterImage() 
+    {
         const ghost = this.scene.add.sprite(this.x, this.y, this.texture.key, this.frame.name);
         
         ghost.setDepth(this.depth - 1);
         ghost.setScale(this.scaleX, this.scaleY);
         ghost.setFlipX(this.flipX);
 
-        this.scene.tweens.add({
+        this.scene.tweens.add(
+        {
             targets: ghost,
             alpha: 0,
             duration: 400,
@@ -162,15 +183,30 @@ export class Player extends Physics.Arcade.Sprite {
         });
     }
 
-    takeDamage(source: Phaser.GameObjects.GameObject) {
+    takeDamage(source: Phaser.GameObjects.GameObject) 
+    {
         if (!this.hitstun && this.state != 'dodging')
         {    
             this.hitstun = true;
             --this.hp;
             eventCenter.emit('update-player-hp', this.hp);
-            knockback(this, source);
 
-            this.scene.time.delayedCall(200, () => { this.hitstun = false; this.state = 'can_move' }, [], this);
+            if (this.hp > 0)
+            {
+                knockback(this, source);
+                this.scene.time.delayedCall(200, () => { this.hitstun = false; this.state = 'can_move' }, [], this);
+            }
+            else if (this.hp >= 0)
+            {
+                this.state = 'dead';
+                this.setVelocityX(0);
+                this.setVelocityY(0);
+
+                if (source.constructor.name == 'Bullet') source.destroy();
+
+                death(this, this.scene);
+            }
+            
         }    
     }
 }

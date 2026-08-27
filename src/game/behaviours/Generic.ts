@@ -1,4 +1,5 @@
-function knockback(target: Phaser.GameObjects.GameObject, source: Phaser.GameObjects.GameObject) {
+function knockback(target: Phaser.GameObjects.GameObject, source: Phaser.GameObjects.GameObject) 
+{
     
     if (target.constructor.name != 'Player')
     {
@@ -16,6 +17,22 @@ function knockback(target: Phaser.GameObjects.GameObject, source: Phaser.GameObj
         target.body!.velocity.y *= -4;
     }
     target.state = 'knocked_back';
+
+    // TODO: Update Bullet to a generic projectile class 
+    if (source.constructor.name == 'Bullet') source.destroy();
 }
 
-export {knockback};
+function death(target: Phaser.Physics.Arcade.Sprite, scene: Phaser.Scene) 
+{
+    target.setTint(0xff0000);
+    scene.tweens.add(
+    {
+        targets: target,
+        alpha: 0,
+        duration: 600,
+        ease: 'Cubic.easeOut',
+        onComplete: () => target.destroy()
+    });
+}
+
+export {knockback, death};

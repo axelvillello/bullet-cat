@@ -1,17 +1,21 @@
 import { Physics } from 'phaser';
-import { knockback } from '../behaviours/Generic';
+import { knockback, death } from '../behaviours/Generic';
 import { Game } from '../scenes/Game';
 import { Player } from './Player';
+import eventCenter from '../helpers/EventCenter';
 
-export class Apathy extends Physics.Arcade.Sprite {
+export class Apathy extends Physics.Arcade.Sprite 
+{
     declare scene: Game;
     declare body: Phaser.Physics.Arcade.Body;
     state = 'standby';
     hp = 3;
+    scoreWorth = 10;
     fireRate = 2000;
     lastFired = 0;
 
-    constructor({scene}: { scene: Game}) {
+    constructor({scene}: { scene: Game}) 
+    {
         super(scene, 412, -200, 'apathy');
         this.scene.add.existing(this);
         this.scene.physics.add.existing(this);
@@ -23,7 +27,8 @@ export class Apathy extends Physics.Arcade.Sprite {
         }, undefined, this); 
     }
 
-    createAnimations() {
+    createAnimations() 
+    {
         if (!this.scene.anims.exists('apathy_idle')) {
             this.scene.anims.create({
                 key: 'apathy_idle',
@@ -34,18 +39,36 @@ export class Apathy extends Physics.Arcade.Sprite {
         }
     }
 
-    start() {
+    start() 
+    {
         this.state = 'can_move';
         this.anims.play('apathy_idle', true);
     }
 
-    update() {
-        if (this.state == 'can_move') this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, 150, 0);
+    update() 
+    {
+        if ((this.state == 'can_move') && (!this.scene.player.isDestroyed)) this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, 150, 0);
     }
 
-    takeDamage(source: Phaser.GameObjects.GameObject) {
+    takeDamage(source: Phaser.GameObjects.GameObject) 
+    {
         --this.hp;
-        knockback(this, source);
-        this.scene.time.delayedCall(200, () => { this.state = 'can_move' }, [], this);
+
+        if (this.hp > 0)
+        {
+            knockback(this, source);
+            this.scene.time.delayedCall(200, () => { this.state = 'can_move' }, [], this);
+        }
+        else if (this.hp >= 0)
+        {
+            this.state = 'dead';
+            this.setVelocityX(0);
+            this.setVelocityY(0);
+
+            if (source.constructor.name == 'Bullet') source.destroy();
+
+            eventCenter.emit('add-score', this.scoreWorth);
+            death(this, this.scene);
+        }
     }
 }

@@ -3,6 +3,7 @@ import { Player } from '../gameObjects/Player';
 import { Apathy } from '../gameObjects/Apathy';
 import { Subiugatum } from '../gameObjects/Subiugatum';
 import eventCenter from '../helpers/EventCenter';
+import CurrentSession from '../state/CurrentSession';
 
 type Keys = Phaser.Input.Keyboard.Key;
 
@@ -22,6 +23,8 @@ export class Game extends Scene
     keyESC!: Keys;
 
     isFiring = false;
+
+    session = new CurrentSession();
 
     constructor ()
     {
@@ -46,9 +49,15 @@ export class Game extends Scene
         this.enemies.addMultiple([this.apathy, this.subiugatum]);
         this.enemyList = [this.apathy, this.subiugatum];
 
-        this.scene.get('HUD').events.once('create', () => {
+        this.session.setScore(0);
+
+        this.scene.get('HUD').events.once('create', () => 
+        {
+            eventCenter.emit('update-score', this.session.scoreTotal);
             eventCenter.emit('update-player-hp', this.player.hp);
         });
+
+        eventCenter.on('add-score', this.addScore, this);
 
         this.keyW = this.input.keyboard!.addKey('W');
         this.keyA = this.input.keyboard!.addKey('A');
@@ -59,10 +68,7 @@ export class Game extends Scene
 
         this.player.start();
 
-        for (let e of this.enemyList)
-        {
-            e.start();
-        }
+        for (let e of this.enemyList) e.start();
 
         this.cameras.main.startFollow(this.player);
         this.input.on('pointerdown', () => { this.isFiring = true; });
@@ -73,41 +79,35 @@ export class Game extends Scene
     update() {
         this.input.activePointer.updateWorldPoint(this.cameras.main);
 
-        this.player.update();
+        for (let e of this.enemyList) e.update();
 
-        for (let e of this.enemyList)
+        if (!this.player.isDestroyed)
         {
-            e.update();
+            this.player.update();
+
+            // Checks for vertical movement input
+            if (this.keyW.isDown) this.player.move('up');
+            else if (this.keyS.isDown) this.player.move('down');
+            else this.player.move('noY');
+            // Checks for horizontal movement input
+            if (this.keyA.isDown) this.player.move('left');
+            else if (this.keyD.isDown) this.player.move('right');
+            else this.player.move('noX');
+
+            if (this.keySPACE.isDown) this.player.dodge();
+            if (this.isFiring) this.player.fire();
         }
 
-        if (this.keyW.isDown) {
-            this.player.move('up');
-        }
-        else if (this.keyS.isDown) {
-            this.player.move('down');
-        }
-        else {
-            this.player.move('noY');
-        }
-        
-        if (this.keyA.isDown) {
-            this.player.move('left');
-        }
-        else if (this.keyD.isDown) {
-            this.player.move('right');
-        }
-        else {
-            this.player.move('noX');
-        }
-        
-        if (this.keyESC.isDown) {
+        if (this.keyESC.isDown) 
+        {
+            eventCenter.destroy();
             this.scene.stop('HUD');
             this.scene.start('GameOver');
         }
+    }
 
-        if (this.keySPACE.isDown) this.player.dodge();
-
-        if (this.isFiring) this.player.fire();
-
+    addScore(addedScore: number)
+    {
+        this.session.addScore(addedScore);
     }
 }

@@ -4,7 +4,8 @@ import { Player } from './Player';
 import { Apathy } from './Apathy';
 import { Subiugatum } from './Subiugatum';
 
-interface BulletConfig {
+interface BulletConfig 
+{
     scene: Game;
     originX: number;
     originY: number;
@@ -17,7 +18,8 @@ interface BulletConfig {
     tint?: number;
 }
 
-export class Bullet extends Physics.Arcade.Sprite {
+export class Bullet extends Physics.Arcade.Sprite 
+{
     declare scene: Game;
     declare body: Phaser.Physics.Arcade.Body;
     startX!: number;
@@ -46,6 +48,8 @@ export class Bullet extends Physics.Arcade.Sprite {
         this.createAnimations();
 
         this.body.setSize(10, 10);
+
+        // TODO: Update enemy object to a generic enemy class 
         if (source == 'enemy') this.scene.physics.add.overlap(this, this.scene.player, (bulletObj, playerObj) => {
             (playerObj as Player).takeDamage(bulletObj as Bullet)
         }, undefined, this)
@@ -56,9 +60,12 @@ export class Bullet extends Physics.Arcade.Sprite {
         };        
     }
 
-    createAnimations() {
-        if (!this.scene.anims.exists('fire')) {
-            this.scene.anims.create({
+    createAnimations() 
+    {
+        if (!this.scene.anims.exists('fire')) 
+        {
+            this.scene.anims.create(
+            {
                 key: 'fire',
                 frames: this.anims.generateFrameNumbers('p_bullet1', { frames: [ 0, 1, 2, 3, 4, 5, 6, 7 ] }),
                 frameRate: 15,
