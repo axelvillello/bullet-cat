@@ -8,6 +8,8 @@ export class Player extends Physics.Arcade.Sprite
 {
     declare scene: Game;
     declare body: Phaser.Physics.Arcade.Body;
+    declare shadow: Phaser.GameObjects.Ellipse;
+
     state = 'standby';
     hitstun = false;
     hp = 3;
@@ -24,6 +26,9 @@ export class Player extends Physics.Arcade.Sprite
         this.createAnimations();
 
         this.body.setSize(10, 10);
+        this.shadow = this.scene.add.ellipse(512, 384, 50, 20, 0x000000, 0.5);
+        this.scene.physics.add.existing(this.shadow, false);
+        this.shadow.setBelow(this);
         //this.setLighting(true);
         //this.setSelfShadow(true);
     }
@@ -85,6 +90,13 @@ export class Player extends Physics.Arcade.Sprite
         if (this.body.velocity.x === 0 && this.body.velocity.y === 0)
         {
             this.anims.play('idle', true);
+        }
+
+        if (this.shadow.body)
+        { 
+            const xOffset = this.flipX ? -6 : -15; //Specific variables for the placeholder sprite
+            this.shadow.body.position.x = this.body.position.x + xOffset;
+            this.shadow.body.position.y = this.body.position.y + 30;
         }
     }
 

@@ -39,7 +39,7 @@ export class Game extends Scene
         this.platform = this.add.circle(512, 384, 700, 0xffffff, 0.5);
 
         //this.lights.enable();
-        //this.lights.addLight({x: 512, y: 384, z: 50, intensity: 100, radius: 500});
+        //this.lights.addLight(512, 384, 700, 0xffffff, 1000, 100);
 
         this.player = new Player({ scene: this }).setScale(3);
 
