@@ -2,12 +2,14 @@ import { Physics } from 'phaser';
 import { knockback, death } from '../behaviours/Generic';
 import { Game } from '../scenes/Game';
 import { Player } from './Player';
+import { Shadow } from '../FX/Shadow';
 import eventCenter from '../helpers/EventCenter';
 
 export class Apathy extends Physics.Arcade.Sprite 
 {
     declare scene: Game;
     declare body: Phaser.Physics.Arcade.Body;
+    declare shadow: Shadow;
     state = 'standby';
     hp = 3;
     scoreWorth = 10;
@@ -25,6 +27,8 @@ export class Apathy extends Physics.Arcade.Sprite
         this.scene.physics.add.overlap(this, this.scene.player, (apathyObj, playerObj) => {
             (playerObj as Player).takeDamage(apathyObj as Apathy);
         }, undefined, this); 
+
+        this.shadow = new Shadow(this, this.scene);
     }
 
     createAnimations() 
@@ -47,6 +51,8 @@ export class Apathy extends Physics.Arcade.Sprite
 
     update() 
     {
+        this.shadow.update();
+        
         if ((this.state == 'can_move') && (!this.scene.player.isDestroyed)) this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, 150, 0);
     }
 
