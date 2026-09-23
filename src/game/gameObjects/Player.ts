@@ -28,11 +28,12 @@ export class Player extends Physics.Arcade.Sprite
         this.body.setSize(10, 10);
         this.shadow = this.scene.add.ellipse(512, 384, 50, 20, 0x000000, 0.5);
         this.scene.physics.add.existing(this.shadow, false);
-        this.shadow.setBelow(this);
+        this.shadow.setDepth(this.depth - 6);
         //this.setLighting(true);
         //this.setSelfShadow(true);
     }
 
+    // TODO: Fix up and down animations not playing when colliding into a wall
     createAnimations() 
     {
         if (!this.scene.anims.exists('idle')) 
@@ -210,6 +211,15 @@ export class Player extends Physics.Arcade.Sprite
             }
             else if (this.hp >= 0)
             {
+                this.scene.tweens.add(
+                {
+                    targets: this.shadow,
+                    alpha: 0,
+                    duration: 600,
+                    ease: 'Cubic.easeOut',
+                    onComplete: () => this.shadow.destroy()
+                });
+
                 this.state = 'dead';
                 this.setVelocityX(0);
                 this.setVelocityY(0);

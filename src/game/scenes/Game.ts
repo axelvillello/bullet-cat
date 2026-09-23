@@ -7,6 +7,11 @@ import CurrentSession from '../state/CurrentSession';
 
 type Keys = Phaser.Input.Keyboard.Key;
 
+// TODO: Spawn new enemies in random locations
+// TODO: Create a generic parent class for enemies
+// TODO: Add pathing for enemies 
+// TODO: Fix player dodging through corners of the map 
+
 export class Game extends Scene
 {
     platform!: Phaser.GameObjects.Arc;
@@ -34,19 +39,41 @@ export class Game extends Scene
     create ()
     {
         this.scene.launch('HUD');
-        this.cameras.main.setBackgroundColor('#884496');
+        this.cameras.main.setBackgroundColor('#2A112E');
 
-        this.platform = this.add.circle(512, 384, 700, 0xffffff, 0.5);
+        // Increase tolerance for fast moving object collision
+        this.physics.world.TILE_BIAS = 64;
+
+        // Tilemap generation from the preloaded JSON and tilesheet
+        const map = this.make.tilemap({ key: 'map' });
+        const tileset = map.addTilesetImage('bullet-cat-endless-tileset', 'tiles');
+
+        // Layer ID defined using Tiled
+        const belowLayer = map.createLayer('Below Player', tileset!, 0, 0).setScale(3);
+        const worldLayer = map.createLayer('World', tileset!, 0, 0).setScale(3);
+
+        belowLayer.setDepth(-10);
+        worldLayer.setDepth(-5);
+
+        const centerX = (map.widthInPixels*3)/2;
+        const centerY = (map.heightInPixels*3)/2;
+
+        worldLayer.setCollisionBetween(0, 6);
 
         //this.lights.enable();
         //this.lights.addLight(512, 384, 700, 0xffffff, 1000, 100);
 
         this.player = new Player({ scene: this }).setScale(3);
 
+        // Load enemy types and place them in a group
         this.apathy = new Apathy ({ scene: this });
         this.subiugatum = new Subiugatum({ scene: this });
+
+        // Enemies are placed into an group for shared physics 
         this.enemies = this.add.group();
         this.enemies.addMultiple([this.apathy, this.subiugatum]);
+
+        // Enemies are placed into an array for function calls 
         this.enemyList = [this.apathy, this.subiugatum];
 
         this.session.setScore(0);
@@ -67,12 +94,20 @@ export class Game extends Scene
         this.keyESC = this.input.keyboard!.addKey('ESC');
 
         this.player.start();
+        this.player.setPosition(centerX, centerY + 200);
 
-        for (let e of this.enemyList) e.start();
+        for (let e of this.enemyList) {
+            e.start();
+            e.setPosition(centerX, centerY - 700);
+        }
 
         this.cameras.main.startFollow(this.player);
         this.input.on('pointerdown', () => { this.isFiring = true; });
         this.input.on('pointerup',   () => { this.isFiring = false; });
+
+        this.physics.add.collider(this.player, worldLayer);
+        this.physics.add.collider(this.enemies, worldLayer);
+
 
     }
 

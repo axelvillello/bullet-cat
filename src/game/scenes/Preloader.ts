@@ -35,12 +35,14 @@ export class Preloader extends Scene
         this.load.spritesheet('p_bullet1', 'player_bullet_1.png', {frameWidth: 23.8, frameHeight: 17});
         this.load.spritesheet('apathy', 'apathy.png', {frameWidth: 128, frameHeight: 128});
         this.load.spritesheet('subiugatum', 'subiugatum.png', {frameWidth: 128, frameHeight: 128});
+
+         // Endless stage tileset loading
+        this.load.image('tiles', 'tilemaps/Tiles-16x16.png');
+        this.load.tilemapTiledJSON('map', 'tilemaps/test.json');
     }
 
     create ()
     {
-        //  When all the assets have loaded, it's often worth creating global objects here that the rest of the game can use.
-        //  For example, you can define global animations here, so we can use them in other scenes.
 
         //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
         this.scene.start('MainMenu');

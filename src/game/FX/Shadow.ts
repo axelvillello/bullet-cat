@@ -15,7 +15,8 @@ export class Shadow
         this.scene = scene;
         this.shadow = this.scene.add.ellipse(512, 384, this.targetObj.displayWidth/2, this.targetObj.displayHeight/5, 0x000000, 0.5);
         this.scene.physics.add.existing(this.shadow, false);
-        this.shadow.setBelow(this.targetObj);
+        //this.shadow.setBelow(this.targetObj);
+        this.shadow.setDepth(this.targetObj.depth - 6);
     }
 
     update()
