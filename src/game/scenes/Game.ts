@@ -4,6 +4,7 @@ import { Apathy } from '../gameObjects/Apathy';
 import { Subiugatum } from '../gameObjects/Subiugatum';
 import eventCenter from '../helpers/EventCenter';
 import CurrentSession from '../state/CurrentSession';
+import { spawnMob } from '../systems/endlessSpawner';
 
 type Keys = Phaser.Input.Keyboard.Key;
 
@@ -26,8 +27,11 @@ export class Game extends Scene
     keyD!: Keys;
     keySPACE!: Keys;
     keyESC!: Keys;
+    centerX!: number;
+    centerY!: number;
 
     isFiring = false;
+    spawnTimer = 0;
 
     session = new CurrentSession();
 
@@ -55,8 +59,8 @@ export class Game extends Scene
         belowLayer.setDepth(-10);
         worldLayer.setDepth(-5);
 
-        const centerX = (map.widthInPixels*3)/2;
-        const centerY = (map.heightInPixels*3)/2;
+        this.centerX = (map.widthInPixels*3)/2;
+        this.centerY = (map.heightInPixels*3)/2;
 
         worldLayer.setCollisionBetween(0, 6);
 
@@ -94,11 +98,11 @@ export class Game extends Scene
         this.keyESC = this.input.keyboard!.addKey('ESC');
 
         this.player.start();
-        this.player.setPosition(centerX, centerY + 200);
+        this.player.setPosition(this.centerX, this.centerY + 200);
 
         for (let e of this.enemyList) {
             e.start();
-            e.setPosition(centerX, centerY - 700);
+            e.setPosition(this.centerX, this.centerY - 700);
         }
 
         this.cameras.main.startFollow(this.player);
@@ -107,11 +111,12 @@ export class Game extends Scene
 
         this.physics.add.collider(this.player, worldLayer);
         this.physics.add.collider(this.enemies, worldLayer);
-
-
     }
 
-    update() {
+    update(time: number) {
+
+        if (time > this.spawnTimer) spawnMob(this);
+
         this.input.activePointer.updateWorldPoint(this.cameras.main);
 
         for (let e of this.enemyList) e.update();
