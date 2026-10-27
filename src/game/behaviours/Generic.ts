@@ -10,6 +10,7 @@ function knockback(target: Phaser.GameObjects.GameObject, source: Phaser.GameObj
     {
         target.body!.velocity.x = 1200 * Math.sign(source.body!.velocity.x);
         target.body!.velocity.y = 1200 * Math.sign(source.body!.velocity.y);
+        
     }
     else 
     {
@@ -17,6 +18,18 @@ function knockback(target: Phaser.GameObjects.GameObject, source: Phaser.GameObj
         target.body!.velocity.y *= -4;
     }
     target.state = 'knocked_back';
+    
+    // Canned damage "animation"
+    target.setTint(0xff0000);
+    target.scene.tweens.add({
+        targets: target,
+        alpha: 0,
+        duration: 1,
+        ease: 'Cubic.bounce',
+        yoyo: true,
+        repeat: 3,
+        onComplete: () => target.clearTint()
+    });
 
     // TODO: Update Bullet to a generic projectile class 
     if (source.constructor.name == 'Bullet') source.destroy();
