@@ -19,8 +19,8 @@ export class Game extends Scene
     player!: Player;
     apathy!: Apathy;
     subiugatum!: Subiugatum;
-    enemies!: Phaser.GameObjects.Group;
-    enemyList!: (Apathy | Subiugatum)[]; //Separate array for handling enemy logic to avoid looping through the heavier group object
+    enemies!: Phaser.GameObjects.Group; // Enemy collisin handling
+    enemyList!: (Apathy | Subiugatum)[]; // Array for handling enemy logic to avoid looping through the heavier group object
     keyW!: Keys;
     keyA!: Keys;
     keyS!: Keys;
@@ -124,30 +124,42 @@ export class Game extends Scene
         if (!this.player.isDestroyed)
         {
             this.player.update();
-
-            // Checks for vertical movement input
-            if (this.keyW.isDown) this.player.move('up');
-            else if (this.keyS.isDown) this.player.move('down');
-            else this.player.move('noY');
-            // Checks for horizontal movement input
-            if (this.keyA.isDown) this.player.move('left');
-            else if (this.keyD.isDown) this.player.move('right');
-            else this.player.move('noX');
-
-            if (this.keySPACE.isDown) this.player.dodge();
-            if (this.isFiring) this.player.fire();
+            this.checkPlayerInputs();
         }
 
         if (this.keyESC.isDown) 
         {
-            eventCenter.destroy();
-            this.scene.stop('HUD');
-            this.scene.start('GameOver');
+            this.cleanUp();
         }
     }
 
     addScore(addedScore: number)
     {
         this.session.addScore(addedScore);
+    }
+
+    checkPlayerInputs()
+    {
+        // Checks for vertical movement input
+        if (this.keyW.isDown) this.player.move('up');
+        else if (this.keyS.isDown) this.player.move('down');
+        else this.player.move('noY');
+
+        // Checks for horizontal movement input
+        if (this.keyA.isDown) this.player.move('left');
+        else if (this.keyD.isDown) this.player.move('right');
+        else this.player.move('noX');
+        
+        // Checks for special actions
+        if (this.keySPACE.isDown) this.player.dodge();
+        if (this.isFiring) this.player.fire();
+    }
+
+    cleanUp()
+    {
+        this.enemyList = [];
+        eventCenter.destroy();
+        this.scene.stop('HUD');
+        this.scene.start('GameOver');
     }
 }

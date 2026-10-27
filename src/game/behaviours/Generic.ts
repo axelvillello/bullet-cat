@@ -20,14 +20,14 @@ function knockback(target: Phaser.GameObjects.GameObject, source: Phaser.GameObj
     target.state = 'knocked_back';
     
     // Canned damage "animation"
-    target.setTint(0xff0000);
+    target.setTint(0xffffff);
     target.scene.tweens.add({
         targets: target,
         alpha: 0,
         duration: 1,
         ease: 'Cubic.bounce',
         yoyo: true,
-        repeat: 3,
+        repeat: 6,
         onComplete: () => target.clearTint()
     });
 

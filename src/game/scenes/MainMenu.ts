@@ -19,7 +19,7 @@ export class MainMenu extends Scene
 
         this.add.image(512, 384, 'background');
 
-        this.add.text(512, 200, 'Bullet Cat', {
+        this.add.text(512, 200, 'Bullet-Curtain\n Animals', {
             fontFamily: Settings.font, fontSize: 72, color: '#000000',
             stroke: '#ffffff', strokeThickness: 8,
             align: 'center'
